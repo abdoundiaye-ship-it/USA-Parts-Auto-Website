@@ -234,6 +234,111 @@ section p.lead {
     background: #0f3e6a;
 }
 
+.brochure-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.brochure-toolbar input[type="search"] {
+    flex: 1 1 320px;
+    padding: 0.95rem 1rem;
+    border: 1px solid rgba(21, 77, 141, 0.25);
+    border-radius: 14px;
+    font-size: 1rem;
+}
+
+.brochure-toolbar .btn {
+    flex: 0 0 auto;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #082c57;
+}
+
+.brochure-viewer {
+    position: relative;
+    border: 1px solid rgba(21, 77, 141, 0.14);
+    border-radius: 20px;
+    overflow: auto;
+    box-shadow: 0 12px 40px rgba(9, 42, 82, 0.08);
+    max-height: 900px;
+}
+
+.brochure-page {
+    position: relative;
+    margin: 0 auto;
+    padding: 1rem;
+    background: #f7f8fb;
+}
+
+.brochure-page canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.brochure-fallback {
+    width: 100%;
+    min-height: 900px;
+    border: none;
+}
+
+.textLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.textLayer div {
+    position: absolute;
+    white-space: pre;
+    transform-origin: 0 0;
+    color: transparent;
+    text-shadow: 0 0 0 rgba(0, 0, 0, 0.01);
+}
+
+.textLayer .brochure-highlight {
+    background: rgba(255, 229, 100, 0.85);
+    color: rgba(0, 0, 0, 0.95);
+    text-shadow: none;
+}
+
+.textLayer .brochure-highlight-active {
+    background: rgba(255, 229, 100, 0.95);
+    color: rgba(0, 0, 0, 0.95);
+    outline: 3px solid rgba(215, 41, 51, 0.9);
+    outline-offset: 2px;
+}
+
+.brochure-results {
+    margin-top: 1rem;
+    color: #082c57;
+    font-weight: 600;
+    text-align: center;
+}
+
+.brochure-loading {
+    padding: 4rem 1rem;
+    text-align: center;
+    color: #082c57;
+    font-weight: 600;
+}
+
+.brochure-note {
+    margin: 0.75rem auto 0;
+    max-width: 760px;
+    color: #555;
+    text-align: center;
+}
+
 .feature-card h3,
 .testimonial-card h3 {
     margin-top: 0;

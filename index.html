@@ -88,55 +88,9 @@
         <div class="container">
             <h2 data-i18n="productsTitle">Our Products</h2>
             <p class="lead" data-i18n="productsLead">Browse our premium selection of engine oils and transmission fluids designed for modern vehicles and demanding conditions.</p>
-            <div class="product-grid">
-                <div class="product">
-                    <img class="product-img" src="product1.jpg" alt="GP PETROGEN FULL SYNTHETIC 5W40 SP MOTOR OIL">
-                    <h3>GP PETROGEN FULL SYNTHETIC 5W40 SP MOTOR OIL</h3>
-                    <p>12/1QTS (GOLD SERIES)</p>
-                    <p>SKU: GP-5W40-1L</p>
-                    <p class="price">Price: 9000 CFA</p>
-                    <a class="btn product-btn" href="#quote" data-i18n="requestQuote">Request Quote</a>
-                </div>
-                <div class="product">
-                    <img class="product-img" src="product2.jpg" alt="CASTROL EDGE 5W40 EURO MOTOR OIL">
-                    <h3>CASTROL EDGE 5W40 EURO MOTOR OIL</h3>
-                    <p>6/1 QTS</p>
-                    <p>SKU: CE-5W40-1L</p>
-                    <p class="price">Price: 8500 CFA</p>
-                    <a class="btn product-btn" href="#quote" data-i18n="requestQuote">Request Quote</a>
-                </div>
-                <div class="product">
-                    <img class="product-img" src="product3.jpg" alt="MOBIL 1 FS EURO 5W40 MOTOR OIL">
-                    <h3>MOBIL 1 FS EURO 5W40 MOTOR OIL</h3>
-                    <p>6/1 QUARTS</p>
-                    <p>SKU: MB1-5W40-1L</p>
-                    <p class="price">Price: 9500 CFA</p>
-                    <a class="btn product-btn" href="#quote" data-i18n="requestQuote">Request Quote</a>
-                </div>
-                <div class="product">
-                    <img class="product-img" src="product4.jpg" alt="MOTORCRAFT MERCON LV TRANSMISSION FLUID">
-                    <h3>MOTORCRAFT MERCON LV TRANSMISSION FLUID</h3>
-                    <p>12/1 QTS</p>
-                    <p>SKU: MC-LVTF-1L</p>
-                    <p class="price">Price: 4000 CFA</p>
-                    <a class="btn product-btn" href="#quote" data-i18n="requestQuote">Request Quote</a>
-                </div>
-                <div class="product">
-                    <img class="product-img" src="product5.jpg" alt="PRIME SERIES ATF DEXRON-3 TRANSMISSION FLUID">
-                    <h3>PRIME SERIES ATF DEXRON-3 TRANSMISSION FLUID</h3>
-                    <p>12/1 QTS</p>
-                    <p>SKU: PS--ATFTF-1L</p>
-                    <p class="price">Price: 3500 CFA</p>
-                    <a class="btn product-btn" href="#quote" data-i18n="requestQuote">Request Quote</a>
-                </div>
-                <div class="product">
-                    <img class="product-img" src="product6.jpg" alt="GP DEOGEN STANDARD 15W40 CI4">
-                    <h3>GP DEOGEN STANDARD 15W40 CI4</h3>
-                    <p>55 GAL</p>
-                    <p>SKU: GP-15W40-220L</p>
-                    <p class="price">Price: 7000 CFA</p>
-                    <a class="btn product-btn" href="#quote" data-i18n="requestQuote">Request Quote</a>
-                </div>
+            <p class="brochure-note" data-i18n="brochureNote">Click inside the brochure and use Ctrl+F to search the PDF content.</p>
+            <div class="brochure-viewer" id="brochure-viewer">
+                <p class="brochure-loading" id="brochure-loading">Loading brochure...</p>
             </div>
         </div>
     </section>
@@ -186,6 +140,7 @@
             <div class="footer-meta" data-i18n="footerMeta">Email: info@usacarsoilandparts.com | Phone: +1 (555) 123-4567</div>
         </div>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

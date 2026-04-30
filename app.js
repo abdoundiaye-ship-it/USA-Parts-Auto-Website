@@ -34,6 +34,12 @@ const translations = {
         flyerTitle: 'Our Flyer',
         productsTitle: 'Our Products',
         productsLead: 'Browse our premium selection of engine oils and transmission fluids designed for modern vehicles and demanding conditions.',
+        searchPlaceholder: 'Search a product in brochure...',
+        searchBrochure: 'Search Brochure',
+        nextMatch: 'Next',
+        resetSearch: 'Reset',
+        brochureNote: 'Click inside the brochure and use Ctrl+F to search the PDF content.',
+        downloadBrochure: 'Download Product Brochure',
         quoteTitle: 'Request a Quote',
         quoteLead: 'Get a personalized quote for the products you need.',
         quoteName: 'Name',
@@ -95,6 +101,12 @@ const translations = {
         flyerTitle: 'Notre flyer',
         productsTitle: 'Nos produits',
         productsLead: 'Découvrez notre sélection haut de gamme d’huiles moteur et de liquides de transmission conçue pour les véhicules modernes et les conditions exigeantes.',
+        searchPlaceholder: 'Rechercher un produit dans la brochure...',
+        searchBrochure: 'Rechercher dans la brochure',
+        nextMatch: 'Suivant',
+        resetSearch: 'Réinitialiser',
+        brochureNote: 'Cliquez dans la brochure et utilisez Ctrl+F pour rechercher le contenu du PDF.',
+        downloadBrochure: 'Télécharger la brochure produit',
         quoteTitle: 'Demander un devis',
         quoteLead: 'Obtenez un devis personnalisé pour les produits dont vous avez besoin.',
         quoteName: 'Nom',
@@ -148,6 +160,175 @@ function renderProductOptions() {
         option.textContent = `${product.name} - ${product.price.toLocaleString()} CFA`;
         select.appendChild(option);
     });
+}
+
+const BROCHURE_URL = encodeURI('./Product brochure USA.pdf');
+let brochurePdfDoc = null;
+let brochurePageTexts = [];
+let brochureMatchElements = [];
+let brochureCurrentMatchIndex = -1;
+
+if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.min.js';
+}
+
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function clearBrochureHighlights() {
+    brochureMatchElements = [];
+    brochureCurrentMatchIndex = -1;
+    document.querySelectorAll('.textLayer div').forEach(div => {
+        if (div.dataset.originalText) {
+            div.innerHTML = div.dataset.originalText;
+        }
+    });
+}
+
+function applyHighlightToDiv(textDiv, term) {
+    const originalText = textDiv.dataset.originalText || textDiv.textContent || '';
+    const regex = new RegExp(`(${escapeRegExp(term)})`, 'gi');
+    const highlightedHtml = originalText.replace(regex, '<span class="brochure-highlight">$1</span>');
+    textDiv.innerHTML = highlightedHtml;
+    const matches = textDiv.querySelectorAll('.brochure-highlight');
+    matches.forEach(match => {
+        brochureMatchElements.push({ page: Number(textDiv.dataset.page), element: match });
+    });
+}
+
+function searchBrochure(term) {
+    const resultsContainer = document.getElementById('brochure-results');
+    clearBrochureHighlights();
+
+    if (!brochurePdfDoc || !term) {
+        if (resultsContainer) {
+            resultsContainer.textContent = '';
+        }
+        return [];
+    }
+
+    const normalizedTerm = term.toLowerCase();
+    const foundPages = new Set();
+    const textLayers = document.querySelectorAll('.textLayer div');
+    console.log(`[Search] Total text layer divs found: ${textLayers.length}`);
+    console.log(`[Search] Searching for term: "${term}"`);
+
+    textLayers.forEach(div => {
+        const text = (div.dataset.originalText || div.textContent || '').toLowerCase();
+        if (text.includes(normalizedTerm)) {
+            console.log(`[Search] Found match on page ${div.dataset.page}: "${text.substring(0, 50)}..."`);
+            foundPages.add(Number(div.dataset.page));
+            applyHighlightToDiv(div, term);
+        }
+    });
+
+    console.log(`[Search] Total matches found: ${brochureMatchElements.length}`);
+    console.log(`[Search] Pages with matches: ${Array.from(foundPages).join(', ')}`);
+
+    if (resultsContainer) {
+        if (foundPages.size > 0) {
+            resultsContainer.textContent = `Found "${term}" on page(s): ${Array.from(foundPages).join(', ')}.`;
+        } else {
+            resultsContainer.textContent = `No results found for "${term}".`;
+        }
+    }
+
+    if (brochureMatchElements.length > 0) {
+        brochureCurrentMatchIndex = 0;
+        const firstMatch = brochureMatchElements[0];
+        firstMatch.element.classList.add('brochure-highlight-active');
+        firstMatch.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return Array.from(foundPages);
+}
+
+function jumpToNextBrochureMatch() {
+    if (brochureMatchElements.length === 0) {
+        return;
+    }
+
+    if (brochureCurrentMatchIndex >= 0) {
+        brochureMatchElements[brochureCurrentMatchIndex].element.classList.remove('brochure-highlight-active');
+    }
+
+    brochureCurrentMatchIndex = (brochureCurrentMatchIndex + 1) % brochureMatchElements.length;
+    const nextMatch = brochureMatchElements[brochureCurrentMatchIndex];
+    nextMatch.element.classList.add('brochure-highlight-active');
+    nextMatch.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function renderBrochure() {
+    const container = document.getElementById('brochure-viewer');
+    const loading = document.getElementById('brochure-loading');
+    if (!container) return;
+
+    try {
+        brochurePdfDoc = await pdfjsLib.getDocument(BROCHURE_URL).promise;
+        console.log(`[Brochure] PDF loaded with ${brochurePdfDoc.numPages} pages`);
+        brochurePageTexts = [];
+        container.innerHTML = '';
+
+        for (let pageNumber = 1; pageNumber <= brochurePdfDoc.numPages; pageNumber++) {
+            const page = await brochurePdfDoc.getPage(pageNumber);
+            const viewport = page.getViewport({ scale: 1.3 });
+            const pageContainer = document.createElement('div');
+            pageContainer.className = 'brochure-page';
+            pageContainer.id = `brochure-page-${pageNumber}`;
+            pageContainer.style.width = `${viewport.width}px`;
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            pageContainer.appendChild(canvas);
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.className = 'textLayer';
+            pageContainer.appendChild(textLayerDiv);
+            container.appendChild(pageContainer);
+
+            await page.render({ canvasContext: context, viewport }).promise;
+
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ').toLowerCase();
+            brochurePageTexts.push(pageText);
+
+            console.log(`[Brochure] Page ${pageNumber}: Extracting ${textContent.items.length} text items`);
+
+            let textDivCount = 0;
+            textContent.items.forEach(item => {
+                const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
+                const textDiv = document.createElement('div');
+                textDiv.dataset.page = pageNumber;
+                textDiv.dataset.originalText = item.str || '';
+                textDiv.textContent = item.str || '';
+                textDiv.style.left = `${tx[4]}px`;
+                textDiv.style.top = `${viewport.height - tx[5]}px`;
+                const fontSize = Math.max(Math.hypot(tx[1], tx[3]), 8);
+                textDiv.style.fontSize = `${fontSize}px`;
+                const scaleX = fontSize > 0 ? Math.abs(Math.hypot(tx[0], tx[2]) / fontSize) : 1;
+                textDiv.style.transform = `scaleX(${scaleX})`;
+                textDiv.style.width = `${item.width * viewport.scale}px`;
+                textLayerDiv.appendChild(textDiv);
+                textDivCount++;
+            });
+            console.log(`[Brochure] Page ${pageNumber}: Created ${textDivCount} text divs`);
+        }
+
+        console.log(`[Brochure] Total text layer divs in DOM: ${document.querySelectorAll('.textLayer div').length}`);
+        if (loading) loading.style.display = 'none';
+    } catch (error) {
+        console.error('[Brochure] Loading failed', error);
+        if (container) {
+            container.innerHTML = `<iframe class="brochure-fallback" src="${BROCHURE_URL}" title="Brochure fallback viewer"></iframe>`;
+        }
+        if (loading) loading.style.display = 'none';
+        const resultsContainer = document.getElementById('brochure-results');
+        if (resultsContainer) {
+            resultsContainer.textContent = 'PDF viewer unavailable; displaying brochure using the browser fallback.';
+        }
+    }
 }
 
 function addToCart(product, quantity = 1) {
@@ -274,4 +455,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+
+    renderBrochure();
 });
