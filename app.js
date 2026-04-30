@@ -396,6 +396,33 @@ function translatePage(lang) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Mobile Navigation Toggle
+    const hamburgerMenu = document.getElementById('hamburger-menu');
+    const navMenu = document.getElementById('nav-menu');
+
+    if (hamburgerMenu) {
+        hamburgerMenu.addEventListener('click', () => {
+            hamburgerMenu.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when a link is clicked
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerMenu.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('header')) {
+                hamburgerMenu.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
+        });
+    }
+
     const savedLang = localStorage.getItem('siteLang') || 'en';
     translatePage(savedLang);
     renderProductOptions();
